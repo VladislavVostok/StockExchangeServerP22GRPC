@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+package ctypto_exchange;
+
+
+option csharp_namespace = "CryptoExchange";
+
+// Основные сервисы биржи
+service CryptoStockExchange {
+	// Получение котировок
+	rpc SubscribeQuotes(QuoteSubscription) returns (stream StockQuote);
+}
+
+message QuoteSubscription{
+	string symbol=1;
+	int32 update_interval_ms=2;
+}
+
+message StockQuote{
+	string symbol = 1;
+	double bid_price=2;
+	double ask_price=3;
+	double last_price=4;
+	int64 volume = 5;
+	google.protobuf.Timestamp timestamp=6;
+	double chage = 7;
+	double chage_percent = 8;
+	QuoteStatus status = 9;
+}
+
+enum QuoteStatus{
+	NORMAL = 0;
+	CLOSED = 1;
+	AUCTION = 3;
+}
