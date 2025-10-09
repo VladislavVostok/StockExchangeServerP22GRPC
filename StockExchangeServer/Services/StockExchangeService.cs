@@ -1,8 +1,8 @@
-﻿using CryptoExchange;
+﻿using StockExchangeServer;
 
 namespace StockExchangeServer.Services
 {
-    public class StockExchangeService : CryptoStockExchange.CryptoStockExchangeBase
+    public class StockExchangeService : StockExchange.StockExchangeBase
     {
         private readonly ILogger<StockExchangeService> _logger;
         public StockExchangeService(ILogger<StockExchangeService> logger)

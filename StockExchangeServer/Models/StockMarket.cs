@@ -1,4 +1,4 @@
-﻿using CryptoExchange;
+﻿using StockExchangeServer;
 using System.Collections.Concurrent;
 
 namespace StockExchangeServer.Models
@@ -31,8 +31,8 @@ namespace StockExchangeServer.Models
                     BidPrice = basePrices[symbol] - 0.1,
                     AskPrice = basePrices[symbol] + 0.1,
                     LastPrice = basePrices[symbol],
-                    Volume = 
-                }
+
+                };
             }
         }
 
