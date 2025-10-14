@@ -1,20 +1,19 @@
-﻿using Grpc.Net.Client; // Импортируем для создания gRPC канала
+using Grpc.Core;
+using Grpc.Net.Client; // Импортируем для создания gRPC канала
 
-
-
-
+using StockExchangeServer;
 
 namespace StockExchangeClient
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Создаем gRPC канал для подключения к серверу
             using var channel = GrpcChannel.ForAddress("https://localhost:7042");
             // Создаем клиенты для каждого сервиса
-            var stockClient = new StockExchangeService.StockExchangeServiceClient(channel);
-            var marketDataClient = new MarketDataService.MarketDataServiceClient(channel);
+            var stockClient = new StockExchange.StockExchangeClient(channel);
+            var marketDataClient = new MarketData.MarketDataClient(channel);
 
             // Генерируем уникальный ID клиента
             var clientId = "client_" + Guid.NewGuid().ToString()[..8];
@@ -33,7 +32,7 @@ namespace StockExchangeClient
         }
 
         // Демонстрация подписки на котировки
-        static async Task DemonstrateQuotesSubscription(StockExchangeService.StockExchangeServiceClient client)
+        static async Task DemonstrateQuotesSubscription(StockExchange.StockExchangeClient client)
         {
             Console.WriteLine("1. Subscribing to Stock Quotes...");
             Console.WriteLine();
@@ -82,7 +81,7 @@ namespace StockExchangeClient
         }
 
         // Демонстрация управления ордерами
-        static async Task DemonstrateOrderManagement(StockExchangeService.StockExchangeServiceClient client, string clientId)
+        static async Task DemonstrateOrderManagement(StockExchange.StockExchangeClient client, string clientId)
         {
             Console.WriteLine("2. Order Management Demo...");
             Console.WriteLine();
@@ -147,7 +146,7 @@ namespace StockExchangeClient
         }
 
         // Демонстрация работы с портфелем
-        static async Task DemonstratePortfolio(StockExchangeService.StockExchangeServiceClient client, string clientId)
+        static async Task DemonstratePortfolio(StockExchange.StockExchangeClient client, string clientId)
         {
             Console.WriteLine("3. Portfolio Demo...");
             Console.WriteLine();
@@ -175,7 +174,7 @@ namespace StockExchangeClient
         }
 
         // Демонстрация двунаправленного потока рыночных данных
-        static async Task DemonstrateMarketDataStream(MarketDataService.MarketDataServiceClient client, string clientId)
+        static async Task DemonstrateMarketDataStream(MarketData.MarketDataClient client, string clientId)
         {
             Console.WriteLine("4. Market Data Stream Demo...");
             Console.WriteLine();
