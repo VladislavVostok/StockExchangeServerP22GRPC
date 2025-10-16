@@ -19,5 +19,12 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
+  },
+  "Kestrel": {
+    "Endpoints": {
+      "Http": {
+        "Url": "http://0.0.0.0:50051"
+      }
+    }
   }
 }

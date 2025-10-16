@@ -10,7 +10,7 @@ namespace StockExchangeClient
         static async Task Main(string[] args)
         {
             // Создаем gRPC канал для подключения к серверу
-            using var channel = GrpcChannel.ForAddress("https://localhost:7042");
+            using var channel = GrpcChannel.ForAddress("http://147.45.147.2:50060");
             // Создаем клиенты для каждого сервиса
             var stockClient = new StockExchange.StockExchangeClient(channel);
             var marketDataClient = new MarketData.MarketDataClient(channel);

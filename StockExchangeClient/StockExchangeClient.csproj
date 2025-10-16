@@ -16,6 +16,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StockExchangeServer\StockExchangeServer.csproj" />
+  </ItemGroup>
+
 
 	<ItemGroup>
 		<Protobuf Include="Protos\stock.proto" GrpcServices="Client" />
