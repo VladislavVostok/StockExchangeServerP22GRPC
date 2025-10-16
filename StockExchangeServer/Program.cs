@@ -14,10 +14,10 @@ namespace StockExchangeServer
             builder.Services.AddSingleton<StockMarket>(); 
             builder.Services.AddSingleton<MarketDataService>();
 
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenAnyIP(50051);
-            });
+            //builder.WebHost.ConfigureKestrel(options =>
+            //{
+            //    options.ListenAnyIP(50051);
+            //});
 
             var app = builder.Build();
 
