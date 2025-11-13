@@ -10,7 +10,7 @@ namespace StockExchangeClient
         static async Task Main(string[] args)
         {
             // Создаем gRPC канал для подключения к серверу
-            using var channel = GrpcChannel.ForAddress("http://147.45.147.2:50051");
+            using var channel = GrpcChannel.ForAddress("http://147.45.147.2:50060");
             // Создаем клиенты для каждого сервиса
             var stockClient = new StockExchange.StockExchangeClient(channel);
             var marketDataClient = new MarketData.MarketDataClient(channel);
@@ -24,8 +24,8 @@ namespace StockExchangeClient
             // Демонстрируем различные функции
             await DemonstrateQuotesSubscription(stockClient);
             await DemonstrateOrderManagement(stockClient, clientId);
-            await DemonstratePortfolio(stockClient, clientId);
-            await DemonstrateMarketDataStream(marketDataClient, clientId);
+            //await DemonstratePortfolio(stockClient, clientId);
+            //await DemonstrateMarketDataStream(marketDataClient, clientId);
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
@@ -40,7 +40,7 @@ namespace StockExchangeClient
             // Создаем запрос на подписку
             var subscription = new QuoteSubscription
             {
-                Symbols = { "AAPL", "GOOGL", "TSLA", "NVDA" }, // Символы для подписки
+                Symbols = { "AAPL" }, // Символы для подписки
                 UpdateIntervalMs = 2000 // Интервал обновления 2 секунды
             };
 

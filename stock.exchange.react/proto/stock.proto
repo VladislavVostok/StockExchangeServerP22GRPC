@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto"; 
+import "google/protobuf/empty.proto"; 
+option csharp_namespace = "StockExchangeServer"; 
+
+package stock_exchange; 
+
+
+service StockExchange {
+
+  rpc SubscribeQuotes (QuoteSubscription) returns (stream StockQuote);
+  
+
+  rpc PlaceOrder (OrderRequest) returns (OrderResponse);
+  
+
+  rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
+  
+
+  rpc GetOrderHistory (OrderHistoryRequest) returns (OrderHistoryResponse);
+  
+
+  rpc GetPortfolio (PortfolioRequest) returns (PortfolioResponse);
+}
+
+service MarketData {
+ 
+  rpc StreamMarketData (stream MarketDataRequest) returns (stream MarketDataUpdate);
+}
+
+
+message StockQuote {
+  string symbol = 1; // ����� �����
+  double bid_price = 2; // ���� �������
+  double ask_price = 3; // ���� �������
+  double last_price = 4; // ��������� ���� ������
+  int64 volume = 5; // ����� ������
+  google.protobuf.Timestamp timestamp = 6; // ��������� �����
+  double change = 7; // ��������� ����
+  double change_percent = 8; // ��������� � ���������
+  QuoteStatus status = 9; // ������ ���������
+}
+
+message QuoteSubscription {
+  repeated string symbols = 1; // ������ ������� ��� ��������
+  int32 update_interval_ms = 2; // �������� ���������� � �������������
+}
+
+message OrderRequest {
+  string order_id = 1; // ���������� ������������� ������
+  string symbol = 2; // ����� �����
+  OrderType order_type = 3; // ��� ������
+  OrderDirection direction = 4; // ����������� (�������/�������)
+  int32 quantity = 5; // ���������� �����
+  double price = 6; // ���� (��� �������� �������)
+  string client_id = 7; // ������������� �������
+  TimeInForce time_in_force = 8; // ������� ����������
+}
+
+message OrderResponse {
+  string order_id = 1; // ������������� ������
+  OrderStatus status = 2; // ������ ������
+  double executed_price = 3; // ���� ����������
+  int32 executed_quantity = 4; // ����������� ����������
+  int32 remaining_quantity = 5; // ���������� ����������
+  string message = 6; // ��������� � �������
+  google.protobuf.Timestamp timestamp = 7; // ��������� �����
+}
+
+message CancelOrderRequest {
+  string order_id = 1; // ������������� ������ ��� ������
+  string client_id = 2; // ������������� �������
+}
+
+message CancelOrderResponse {
+  bool success = 1; // ���� ���������� ������
+  string message = 2; // ��������� � ����������
+}
+
+message OrderHistoryRequest {
+  string client_id = 1; // ������������� �������
+  int32 max_orders = 2; // ������������ ���������� �������
+  google.protobuf.Timestamp from_date = 3; // ���� ������ �������
+}
+
+message OrderHistoryResponse {
+  repeated OrderResponse orders = 1; // ������ �������
+}
+
+message PortfolioRequest {
+  string client_id = 1; // ������������� �������
+}
+
+message PortfolioResponse {
+  string client_id = 1; // ������������� �������
+  double total_value = 2; // ����� ��������� ��������
+  double cash_balance = 3; // ������ �������� �������
+  repeated PortfolioItem items = 4; // ������ �������
+  double daily_pnl = 5; // �������/������ �� ����
+  double total_pnl = 6; // ����� �������/������
+}
+
+message PortfolioItem {
+  string symbol = 1; // ����� �����
+  int32 quantity = 2; // ���������� �����
+  double average_price = 3; // ������� ���� �������
+  double current_price = 4; // ������� ����
+  double market_value = 5; // �������� ���������
+  double unrealized_pnl = 6; // ��������������� �������/������
+}
+
+message MarketDataRequest {
+  string client_id = 1; // ������������� �������
+  repeated string symbols = 2; // ������ �������
+  DataType data_type = 3; // ��� ������������� ������
+}
+
+message MarketDataUpdate {
+  string symbol = 1; // ����� �����
+  DataType data_type = 2; // ��� ������
+  oneof data { // ����������� ��������� ����� ������
+    StockQuote quote = 3; // ���������
+    Trade trade = 4; // ������
+    OrderBookUpdate order_book = 5; // ������ ������
+  }
+  google.protobuf.Timestamp timestamp = 6; // ��������� �����
+}
+
+message Trade {
+  string trade_id = 1; // ������������� ������
+  double price = 2; // ���� ������
+  int32 quantity = 3; // ����� ������
+  TradeDirection direction = 4; // ����������� ������
+}
+
+message OrderBookUpdate {
+  string symbol = 1; // ����� �����
+  repeated OrderBookLevel bids = 2; // ������ �� �������
+  repeated OrderBookLevel asks = 3; // ������ �� �������
+  google.protobuf.Timestamp timestamp = 4; // ��������� �����
+}
+
+message OrderBookLevel {
+  double price = 1; // ���� ������
+  int32 quantity = 2; // ����� �� ������
+  int32 order_count = 3; // ���������� ������ �� ������
+}
+
+// ������������
+enum OrderType {
+  MARKET = 0; // �������� �����
+  LIMIT = 1; // �������� �����
+  STOP = 2; // ����-�����
+  STOP_LIMIT = 3; // ����-����� �����
+}
+
+enum OrderDirection {
+  BUY = 0; // �������
+  SELL = 1; // �������
+}
+
+enum OrderStatus {
+  PENDING = 0; // � ��������
+  PARTIALLY_FILLED = 1; // �������� ��������
+  FILLED = 2; // ��������� ��������
+  CANCELLED = 3; // �������
+  REJECTED = 4; // ��������
+  EXPIRED = 5; // �����
+}
+
+enum TimeInForce {
+  DAY = 0; // �� ����� ���
+  GTC = 1; // ��������� �� ������
+  IOC = 2; // ��������� ��� ��������
+  FOK = 3; // ��������� ��������� ��� ��������
+}
+
+enum QuoteStatus {
+  NORMAL = 0; // ���������� �����
+  HALTED = 1; // ����� ��������������
+  CLOSED = 2; // ����� �������
+  AUCTION = 3; // �������
+}
+
+enum TradeDirection {
+  BUYER_INITIATED = 0; // ��������� - ����������
+  SELLER_INITIATED = 1; // ��������� - ��������
+}
+
+enum DataType {
+  QUOTE = 0; // ���������
+  TRADE = 1; // ������
+  ORDER_BOOK = 2; // ������ ������
+}
