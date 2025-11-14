@@ -2,6 +2,7 @@ const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
+
 const outDir = path.resolve(__dirname, "../src/types");
 if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });

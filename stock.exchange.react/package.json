@@ -16,6 +16,7 @@
     "axios": "^1.13.2",
     "google-protobuf": "^4.0.0",
     "grpc-web": "^2.0.2",
+    "guid-ts": "^1.1.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-scripts": "5.0.1",
@@ -27,7 +28,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "gen:proto": "node scripts/generate-proto.js"
+    "gen:proto": "node scripts/generate-proto.js",
+    "build:proto": "npm run gen:proto && npm run build"
   },
   "eslintConfig": {
     "extends": [
