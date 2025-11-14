@@ -26,7 +26,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "gen:proto": "node scripts/generate-proto.js"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +48,8 @@
     ]
   },
   "devDependencies": {
+    "grpc_tools_node_protoc_ts": "^5.3.3",
+    "grpc-tools": "^1.13.0",
     "ts-protoc-gen": "^0.15.0"
   }
 }
