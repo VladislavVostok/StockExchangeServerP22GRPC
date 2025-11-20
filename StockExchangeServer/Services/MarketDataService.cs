@@ -18,17 +18,15 @@ namespace StockExchangeServer.Services
             _marker = marker;   // Инициализация модели биржи
         }
 
-        public override async Task StreamMarketData(IAsyncStreamReader<MarketDataRequest> requestStream,
+        public override async Task StreamMarketData(MarketDataRequest request,
                                                 IServerStreamWriter<MarketDataUpdate> responseStream,
                                                 ServerCallContext context)
         {
 
-            string clientId = string.Empty;    // Переменная для хранинея ИД клиента
+            string clientId = string.Empty;    // Переменная для хранения ИД клиента
 
             try
             {
-                await requestStream.MoveNext();
-                var request = requestStream.Current;
                 clientId = request.ClientId;
 
                 _logger.LogInformation($"Клиент {clientId} подписан на данные рынка по символу: {string.Join(", ", request.Symbols)}");
@@ -42,26 +40,25 @@ namespace StockExchangeServer.Services
                     _subscribers[symbol].Add(responseStream);
                 }
 
-                while (await requestStream.MoveNext())
-                {
-                    request = requestStream.Current;
+                //while (await requestStream.MoveNext())
+                //{
+                //    request = requestStream.Current;
 
-                    // TODO: Здесь можно обновить подписку при  изменении запроса
-                }
+                //    // TODO: Здесь можно обновить подписку при  изменении запроса
+                //}
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Ошибка в потоке рыночных данных для пользователя {clientId}");
             }
-            finally
-            {
-                foreach (var symbol in _subscribers.Keys)
-                {
-                    _subscribers[symbol].Remove(responseStream);
-                }
-
-            }
+            //finally
+            //{
+            //    foreach (var symbol in _subscribers.Keys)
+            //    {
+            //        _subscribers[symbol].Remove(responseStream);
+            //    }
+            //}
         }
 
 

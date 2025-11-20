@@ -1,196 +1,184 @@
-syntax = "proto3"; // Указываем версию синтаксиса protobuf
+syntax = "proto3";
 
-import "google/protobuf/timestamp.proto"; // Импортируем тип для работы с временными метками
-import "google/protobuf/empty.proto"; // Импортируем тип для пустых сообщений
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+option csharp_namespace = "StockExchangeServer";
 
-option csharp_namespace = "StockExchangeServer"; // Пространство имен для C# кода
+package stock_exchange;
 
-package stock_exchange; // Пакет для организации сервисов
-
-// Основные сервисы биржи
 service StockExchange {
-  // Получение котировок (серверный поток)
   rpc SubscribeQuotes (QuoteSubscription) returns (stream StockQuote);
-  
-  // Размещение ордера
   rpc PlaceOrder (OrderRequest) returns (OrderResponse);
-  
-  // Отмена ордера
   rpc CancelOrder (CancelOrderRequest) returns (CancelOrderResponse);
-  
-  // Получение истории ордеров
   rpc GetOrderHistory (OrderHistoryRequest) returns (OrderHistoryResponse);
-  
-  // Получение портфеля
   rpc GetPortfolio (PortfolioRequest) returns (PortfolioResponse);
 }
 
 service MarketData {
-  // Потоковая передача рыночных данных (двунаправленный поток)
-  rpc StreamMarketData (stream MarketDataRequest) returns (stream MarketDataUpdate);
+  rpc StreamMarketData (MarketDataRequest) returns (stream MarketDataUpdate);
 }
 
-// Определения сообщений
+
 message StockQuote {
-  string symbol = 1; // Тикер акции
-  double bid_price = 2; // Цена покупки
-  double ask_price = 3; // Цена продажи
-  double last_price = 4; // Последняя цена сделки
-  int64 volume = 5; // Объем торгов
-  google.protobuf.Timestamp timestamp = 6; // Временная метка
-  double change = 7; // Изменение цены
-  double change_percent = 8; // Изменение в процентах
-  QuoteStatus status = 9; // Статус котировки
+  string symbol = 1;
+  double bid_price = 2;
+  double ask_price = 3;
+  double last_price = 4;
+  int64 volume = 5;
+  google.protobuf.Timestamp timestamp = 6;
+  double change = 7;
+  double change_percent = 8;
+  QuoteStatus status = 9;
 }
 
 message QuoteSubscription {
-  repeated string symbols = 1; // Список тикеров для подписки
-  int32 update_interval_ms = 2; // Интервал обновления в миллисекундах
+  repeated string symbols = 1;
+  int32 update_interval_ms = 2;
 }
 
 message OrderRequest {
-  string order_id = 1; // Уникальный идентификатор ордера
-  string symbol = 2; // Тикер акции
-  OrderType order_type = 3; // Тип ордера
-  OrderDirection direction = 4; // Направление (покупка/продажа)
-  int32 quantity = 5; // Количество акций
-  double price = 6; // Цена (для лимитных ордеров)
-  string client_id = 7; // Идентификатор клиента
-  TimeInForce time_in_force = 8; // Условие исполнения
+  string order_id = 1;
+  string symbol = 2;
+  OrderType order_type = 3;
+  OrderDirection direction = 4;
+  int32 quantity = 5;
+  double price = 6;
+  string client_id = 7;
+  TimeInForce time_in_force = 8;
 }
 
 message OrderResponse {
-  string order_id = 1; // Идентификатор ордера
-  OrderStatus status = 2; // Статус ордера
-  double executed_price = 3; // Цена исполнения
-  int32 executed_quantity = 4; // Исполненное количество
-  int32 remaining_quantity = 5; // Оставшееся количество
-  string message = 6; // Сообщение о статусе
-  google.protobuf.Timestamp timestamp = 7; // Временная метка
+  string order_id = 1;
+  OrderStatus status = 2;
+  double executed_price = 3;
+  int32 executed_quantity = 4;
+  int32 remaining_quantity = 5;
+  string message = 6;
+  google.protobuf.Timestamp timestamp = 7;
 }
 
 message CancelOrderRequest {
-  string order_id = 1; // Идентификатор ордера для отмены
-  string client_id = 2; // Идентификатор клиента
+  string order_id = 1;
+  string client_id = 2;
 }
 
 message CancelOrderResponse {
-  bool success = 1; // Флаг успешности отмены
-  string message = 2; // Сообщение о результате
+  bool success = 1;
+  string message = 2;
 }
 
 message OrderHistoryRequest {
-  string client_id = 1; // Идентификатор клиента
-  int32 max_orders = 2; // Максимальное количество ордеров
-  google.protobuf.Timestamp from_date = 3; // Дата начала периода
+  string client_id = 1;
+  int32 max_orders = 2;
+  google.protobuf.Timestamp from_date = 3;
 }
 
 message OrderHistoryResponse {
-  repeated OrderResponse orders = 1; // Список ордеров
+  repeated OrderResponse orders = 1;
 }
 
 message PortfolioRequest {
-  string client_id = 1; // Идентификатор клиента
+  string client_id = 1;
 }
 
 message PortfolioResponse {
-  string client_id = 1; // Идентификатор клиента
-  double total_value = 2; // Общая стоимость портфеля
-  double cash_balance = 3; // Баланс денежных средств
-  repeated PortfolioItem items = 4; // Список позиций
-  double daily_pnl = 5; // Прибыль/убыток за день
-  double total_pnl = 6; // Общая прибыль/убыток
+  string client_id = 1;
+  double total_value = 2;
+  double cash_balance = 3;
+  repeated PortfolioItem items = 4;
+  double daily_pnl = 5;
+  double total_pnl = 6;
 }
 
 message PortfolioItem {
-  string symbol = 1; // Тикер акции
-  int32 quantity = 2; // Количество акций
-  double average_price = 3; // Средняя цена покупки
-  double current_price = 4; // Текущая цена
-  double market_value = 5; // Рыночная стоимость
-  double unrealized_pnl = 6; // Нереализованная прибыль/убыток
+  string symbol = 1;
+  int32 quantity = 2;
+  double average_price = 3;
+  double current_price = 4;
+  double market_value = 5;
+  double unrealized_pnl = 6;
 }
 
 message MarketDataRequest {
-  string client_id = 1; // Идентификатор клиента
-  repeated string symbols = 2; // Список тикеров
-  DataType data_type = 3; // Тип запрашиваемых данных
+  string client_id = 1;
+  repeated string symbols = 2;
+  DataType data_type = 3;
 }
 
 message MarketDataUpdate {
-  string symbol = 1; // Тикер акции
-  DataType data_type = 2; // Тип данных
-  oneof data { // Объединение различных типов данных
-    StockQuote quote = 3; // Котировка
-    Trade trade = 4; // Сделка
-    OrderBookUpdate order_book = 5; // Стакан заявок
+  string symbol = 1;
+  DataType data_type = 2;
+  oneof data {
+    StockQuote quote = 3;
+    Trade trade = 4;
+    OrderBookUpdate order_book = 5;
   }
-  google.protobuf.Timestamp timestamp = 6; // Временная метка
+  google.protobuf.Timestamp timestamp = 6;
 }
 
 message Trade {
-  string trade_id = 1; // Идентификатор сделки
-  double price = 2; // Цена сделки
-  int32 quantity = 3; // Объем сделки
-  TradeDirection direction = 4; // Направление сделки
+  string trade_id = 1;
+  double price = 2;
+  int32 quantity = 3;
+  TradeDirection direction = 4;
 }
 
 message OrderBookUpdate {
-  string symbol = 1; // Тикер акции
-  repeated OrderBookLevel bids = 2; // Заявки на покупку
-  repeated OrderBookLevel asks = 3; // Заявки на продажу
-  google.protobuf.Timestamp timestamp = 4; // Временная метка
+  string symbol = 1;
+  repeated OrderBookLevel bids = 2;
+  repeated OrderBookLevel asks = 3;
+  google.protobuf.Timestamp timestamp = 4;
 }
 
 message OrderBookLevel {
-  double price = 1; // Цена уровня
-  int32 quantity = 2; // Объем на уровне
-  int32 order_count = 3; // Количество заявок на уровне
+  double price = 1;
+  int32 quantity = 2;
+  int32 order_count = 3;
 }
 
-// Перечисления
+ 
 enum OrderType {
-  MARKET = 0; // Рыночный ордер
-  LIMIT = 1; // Лимитный ордер
-  STOP = 2; // Стоп-ордер
-  STOP_LIMIT = 3; // Стоп-лимит ордер
+  MARKET = 0;
+  LIMIT = 1;
+  STOP = 2;
+  STOP_LIMIT = 3;
 }
 
 enum OrderDirection {
-  BUY = 0; // Покупка
-  SELL = 1; // Продажа
+  BUY = 0;
+  SELL = 1;
 }
 
 enum OrderStatus {
-  PENDING = 0; // В ожидании
-  PARTIALLY_FILLED = 1; // Частично исполнен
-  FILLED = 2; // Полностью исполнен
-  CANCELLED = 3; // Отменен
-  REJECTED = 4; // Отклонен
-  EXPIRED = 5; // Истек
+  PENDING = 0;
+  PARTIALLY_FILLED = 1;
+  FILLED = 2;
+  CANCELLED = 3;
+  REJECTED = 4;
+  EXPIRED = 5;
 }
 
 enum TimeInForce {
-  DAY = 0; // До конца дня
-  GTC = 1; // Действует до отмены
-  IOC = 2; // Исполнить или отменить
-  FOK = 3; // Исполнить полностью или отменить
+  DAY = 0;
+  GTC = 1;
+  IOC = 2;
+  FOK = 3;
 }
 
 enum QuoteStatus {
-  NORMAL = 0; // Нормальный режим
-  HALTED = 1; // Торги приостановлены
-  CLOSED = 2; // Торги закрыты
-  AUCTION = 3; // Аукцион
+  NORMAL = 0;
+  HALTED = 1;
+  CLOSED = 2;
+  AUCTION = 3;
 }
 
 enum TradeDirection {
-  BUYER_INITIATED = 0; // Инициатор - покупатель
-  SELLER_INITIATED = 1; // Инициатор - продавец
+  BUYER_INITIATED = 0;
+  SELLER_INITIATED = 1;
 }
 
 enum DataType {
-  QUOTE = 0; // Котировки
-  TRADE = 1; // Сделки
-  ORDER_BOOK = 2; // Стакан заявок
+  QUOTE = 0;
+  TRADE = 1;
+  ORDER_BOOK = 2;
 }

@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@grpc/grpc-js": "^1.14.1",
-    "@grpc/proto-loader": "^0.8.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -13,20 +11,31 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
+    "assert": "^2.1.0",
     "axios": "^1.13.2",
-    "google-protobuf": "^4.0.0",
-    "grpc-web": "^2.0.2",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "google-protobuf": "^3.21.4",
     "guid-ts": "^1.1.2",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-scripts": "5.0.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
     "typescript": "^4.9.5",
+    "url": "^0.11.4",
+    "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "gen:proto": "node scripts/generate-proto.js",
     "build:proto": "npm run gen:proto && npm run build"
@@ -50,8 +59,12 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "grpc_tools_node_protoc_ts": "^5.3.3",
     "grpc-tools": "^1.13.0",
+    "grpc-web": "^2.0.2",
+    "protoc-gen-grpc-web": "^1.5.0",
+    "protoc-gen-ts": "^0.8.7",
     "ts-protoc-gen": "^0.15.0"
   }
 }

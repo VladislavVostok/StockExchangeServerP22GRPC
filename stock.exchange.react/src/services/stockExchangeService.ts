@@ -1,84 +1,91 @@
-import { ChannelCredentials, ClientReadableStream } from "@grpc/grpc-js";
-import { StockExchangeClient as StockExchangeServiceClient } from "../types/stock_grpc_pb";
-import { 
-    CancelOrderRequest,
-    CancelOrderResponse,
-    OrderRequest,
-    OrderResponse,
-    QuoteSubscription,
-    StockQuote, 
+import * as grpcWeb from 'grpc-web';
+import { StockExchangeClient } from '../types/StockServiceClientPb';
+import {
+  QuoteSubscription,
+  StockQuote,
+  OrderRequest,
+  OrderResponse,
+  CancelOrderRequest,
+  CancelOrderResponse,
+  OrderHistoryRequest as OrderHistoryRequestMessage,
+  OrderHistoryResponse as OrderHistoryResponseMessage,
+  PortfolioRequest as PortfolioRequestMessage,
+  PortfolioResponse as PortfolioResponseMessage,
+} from '../types/stock_pb';
+import { Guid } from 'guid-ts';
 
-} from "../types/stock_pb";
+class StockExchangeService {
+  private readonly client: StockExchangeClient;
+  private readonly hostname: string = 'http://localhost:50051'; // Assuming grpc-web proxy is running here
 
-import { Guid } from "guid-ts";
+  constructor() {
+    this.client = new StockExchangeClient(this.hostname);
+  }
 
-class StockExchangeService{
-    private client: StockExchangeServiceClient;
+  subscribeQuotes(
+    symbols: string[],
+    onMessage: (quote: StockQuote) => void,
+    onError: (error: grpcWeb.RpcError) => void,
 
-    constructor(){
-        const insecureCredentials = ChannelCredentials.createInsecure() // TODO: Включить HTTPS
+    updateIntervalMs: number = 2000
+  ): grpcWeb.ClientReadableStream<StockQuote> {
+    const request = new QuoteSubscription();
+    request.setSymbolsList(symbols);
+    request.setUpdateIntervalMs(updateIntervalMs);
 
-        // const rootCert = fs.readFileSync('path/to/ca-cert.pem');
-        // const secureCredentials = grpc.ChannelCredentials.createSsl(rootCert);
-        // const clientSecure = new MyServiceClient('localhost:50051', secureCredentials);
+    const stream = this.client.subscribeQuotes(request, {});
 
-        this.client = new StockExchangeServiceClient('http://localhost:7042', insecureCredentials);
-    }
+    stream.on('data', onMessage);
+    stream.on('error', onError);
 
-    // Подписки на котировки (серверный поток)
-    subscribeQuotes(
-        symbols: string[],
-        onMessage:(quote: StockQuote) => void,
-        onError: (error: any) => void,
-        updateIntervalMs: number = 1000
-    ): ClientReadableStream<StockQuote> {
-        const request = new QuoteSubscription();
-        request.setSymbolsList(symbols);
-        request.setUpdateIntervalMs(updateIntervalMs);
 
-        return this.client.subscribeQuotes(request).on('data', onMessage).on('error', onError);
-    }
+    return stream;
+  }
 
-     // Размещение ордера (серверный поток)
-    async placeOrder(orederRequest: OrderRequest): Promise<OrderResponse>{
-        return new Promise((resolve, reject)  => {
-            const request = new OrderRequest();
-            request.setOrderId(`order_${Guid.newGuid()}`);
-            request.setSymbol(orederRequest.getSymbol());
-            request.setOrderType(orederRequest.getOrderType());
-            request.setDirection(orederRequest.getDirection());
-            request.setQuantity(orederRequest.getQuantity());
-            request.setClientId(orederRequest.getClientId());
-            request.setPrice(orederRequest.getPrice());
-            request.setTimeInForce(orederRequest.getTimeInForce());
+  async placeOrder(orderRequest: OrderRequest): Promise<OrderResponse> {
+    const request = new OrderRequest();
+    request.setOrderId(`order_${Guid.newGuid()}`);
+    request.setSymbol(orderRequest.getSymbol());
+    request.setOrderType(orderRequest.getOrderType());
+    request.setDirection(orderRequest.getDirection());
+    request.setQuantity(orderRequest.getQuantity());
+    request.setClientId(orderRequest.getClientId());
+    request.setPrice(orderRequest.getPrice());
+    request.setTimeInForce(orderRequest.getTimeInForce());
 
-            this.client.placeOrder(request, (error, response)=> {
-                if(error){
-                    reject(error)
-                } else {
-                    resolve(response!);
-                }
-            });
+    return this.client.placeOrder(request, null);
+  }
 
-        
-        });
-    }
+  async cancelOrder(
+    orderId: string,
+    clientId: string
+  ): Promise<CancelOrderResponse> {
+    const request = new CancelOrderRequest();
+    request.setOrderId(orderId);
+    request.setClientId(clientId);
 
-    // Отмена ордера (серверный поток)
-    async cancelOrder(orderId: string, clientId: string): Promise<CancelOrderResponse>{
-        return new Promise((resolve, reject)  => {
-            const request = new CancelOrderRequest();
-            request.setOrderId(orderId);
-            request.setClientId(clientId);
- 
+    return this.client.cancelOrder(request, null);
+  }
 
-            this.client.cancelOrder(request, (error, response)=> {
-                if(error){
-                    reject(error)
-                } else {
-                    resolve(response!);
-                }
-            });
-        });
-    }
+  async getOrderHistory(
+    clientId: string,
+    maxOrders: number = 10
+  ): Promise<OrderHistoryResponseMessage> {
+    const request = new OrderHistoryRequestMessage();
+    request.setClientId(clientId);
+    request.setMaxOrders(maxOrders);
+
+    return this.client.getOrderHistory(request, null);
+  }
+
+  async getPortfolio(
+    clientId: string
+  ): Promise<PortfolioResponseMessage> {
+    const request = new PortfolioRequestMessage();
+    request.setClientId(clientId);
+
+    return this.client.getPortfolio(request, null);
+  }
 }
+
+export const stockExchangeService = new StockExchangeService();

@@ -4,6 +4,7 @@ const fs = require("fs");
 
 
 const outDir = path.resolve(__dirname, "../src/types");
+
 if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
 }
@@ -12,20 +13,17 @@ const protocCmd = [
     // Путь к бинарному файлу protoc
     `"${path.resolve(__dirname, "../node_modules/.bin/grpc_tools_node_protoc.cmd")}"`,
 
-    // Путь к плагину TS
-    `--plugin="protoc-gen-ts=${path.resolve(__dirname, "../node_modules/.bin/protoc-gen-ts.cmd")}"`,
+    // Путь к плагину grpc-web
+    `--plugin=protoc-gen-grpc-web="${path.resolve(__dirname, "../node_modules/.bin/protoc-gen-grpc-web.cmd")}"`,
 
     // Путь для подключения proto-файлов
     `-I "${path.resolve(__dirname, "../proto")}"`,
 
-    // Путь для подключения стандартных типов Google
-    `-I "${path.resolve(__dirname, "../node_modules/google-protobuf")}"`,
-
     // Настройки вывода JS
     `--js_out="import_style=commonjs,binary:${outDir}"`,
 
-    // Настройки вывода TS
-    `--ts_out="service=grpc-web:${outDir}"`,
+    // Настройки вывода gRPC-web
+    `--grpc-web_out="import_style=typescript,mode=grpcwebtext:${outDir}"`,
 
     // Путь к proto-файлу
     `"${path.resolve(__dirname, "../proto/stock.proto")}"`
@@ -34,7 +32,9 @@ const protocCmd = [
 
 try {
     console.log(`Очищаем директорию: ${outDir}`);
-    fs.readdirSync(outDir).forEach(f => fs.rmSync(`${outDir}/${f}`));
+    if (fs.existsSync(outDir)) {
+        fs.readdirSync(outDir).forEach(f => fs.unlinkSync(path.join(outDir, f)));
+    }
     
     console.log("Выполняем команду...");
     console.log(protocCmd);
