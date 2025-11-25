@@ -42,7 +42,6 @@ namespace StockExchangeServer.Services
             }
 
         }
-
         public override Task<OrderResponse> PlaceOrder(OrderRequest request, ServerCallContext context)
         {
             _logger.LogInformation($"Размещение ордера: {request.OrderId} для клиента {request.ClientId}");
@@ -61,8 +60,6 @@ namespace StockExchangeServer.Services
             return Task.FromResult(response);
         }
 
-
-
         public override Task<OrderHistoryResponse> GetOrderHistory(OrderHistoryRequest request, ServerCallContext context) {
             var orders = _market.GetOrderHistory(request.ClientId, request.MaxOrders); // Получаем историю ордеров
             return Task.FromResult(new OrderHistoryResponse { Orders = { orders } });
@@ -74,17 +71,6 @@ namespace StockExchangeServer.Services
             return Task.FromResult(portfolio);
         }
 
-
-
-
-
-
-
-
-
-
-
-        /*****************************/
 
     }
 
